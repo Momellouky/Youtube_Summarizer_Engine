@@ -18,6 +18,8 @@ Example usage:
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import logging
+from Controller.controller import Controller
+
 from utils.logger_util import LoggerUtil
 
 
@@ -36,6 +38,9 @@ class RestRunner :
 
         self.setup_routes()
 
+        # Initialize the controller
+        self.controller = Controller()
+
     def run(self) -> None:
         self.app.run()
 
@@ -48,16 +53,15 @@ class RestRunner :
             logging.info("- request received")
             logging.info(f"- data received : {request.json}")
 
+            # Get the data from the request
             search_query = request.json.get('search_query', 1)
             max_results = request.json.get('max_results', 2)
 
-            res = {}
-
+            # Call the controller to get the result
+            result = self.controller.work(search_query, max_results)
 
             return jsonify(
-                {
-                    "message" : "Hello world"
-                }
+                result
             )
 
 
