@@ -1,7 +1,9 @@
 import logging
 
 from Controller.i_controller import IController
-from youtube_api import YouTubeDataAPI
+from Youtube_Search.youtube_search import YoutubeSearch
+from Caption_Generator.caption_generator import CaptionGenerator
+from Video_Summmarizer.VideoSummarizer import VideoSummarizer
 import os
 
 
@@ -11,6 +13,9 @@ class Controller(IController) :
         """Initialize the Controller class."""
         super().__init__()
         self.API_KEY = os.getenv("YTB_DATA_API_KEY")
+        self.ytb_client = YoutubeSearch(self.API_KEY)
+        self.caption_generator = CaptionGenerator()
+        self.video_summarizer = VideoSummarizer()
 
     def work(self, search_query : str, max_results : int = 5) -> None:
         """The implementation of the work method.
@@ -28,21 +33,81 @@ class Controller(IController) :
         # start working on the request
 
         # 1. Search for videos using the search query
-        ytb_client = YouTubeDataAPI(self.API_KEY)
-        search_results = ytb_client.search(
-            q=search_query,
-            max_results=max_results
-        )
 
-        for result in search_results :
-            logging.info("- video_id : %s", result['video_id'])
-            logging.info("- title : %s", result['video_title'])
-            logging.info("--------------------------------------------------")
-
-        logging.info("- search results type : %s", type(search_results))
+        videos_dict = self.ytb_client.search(search_query, max_results)
 
         # 2. Download captions for the videos
 
+        captions_dict = {}
+
+        for video in videos_dict :
+
+            captions_dict[video] = {}
+            logging.info("- Generating captions for video %s", videos_dict[video]['video_id'])
+
+            try :
+                captions = self.caption_generator.generate_captions(videos_dict[video]['video_id'])
+                captions_dict[video]['captions'] = captions
+            except ValueError as e:
+                logging.error(e)
+                captions_dict[video]['captions'] = None
+                continue
+
         # 3. Summarize the captions
+
+        # from groq import Groq
+        #
+        # groq = Groq(
+        #     api_key=os.getenv("GROQ_API_KEY"),
+        #
+        # )
+        #
+        # for video in captions_dict :
+        #     logging.info("- Summarizing captions for video %s", videos_dict[video]['video_id'])
+        #
+        #     try :
+        #         captions = captions_dict[video]['captions']
+        #         if captions is None :
+        #             logging.error("No captions found for video %s", videos_dict[video]['video_id'])
+        #             logging.warnig(f"- Skipping video {videos_dict[video]['video_id']}")
+        #             continue
+        #         chat_completion = groq.chat.completions.create(
+        #             messages=[
+        #                 {
+        #                     "role": "user",
+        #                     "content": f"Summarize the following captions : {captions}"
+        #                 }
+        #             ],
+        #             model="gemma2-9b-it",
+        #             temperature=0.7,
+        #         )
+        #         captions_dict[video]['summary'] = chat_completion.choices[0].message.content
+        #         logging.info("- Summary : %s", captions_dict[video]['summary'])
+        #     except ValueError as e:
+        #         logging.error(e)
+        #         captions_dict[video]['summary'] = None
+        #         continue
+
+        for video_nbr, captions in captions_dict.items() :
+            logging.info("- Summarizing captions for video ", video_nbr)
+
+            try :
+                captions = captions_dict[video_nbr]['captions']
+                if captions is None :
+                    logging.error("No captions found for video %s", videos_dict[video_nbr]['video_id'])
+                    logging.warning(f"- Skipping video {videos_dict[video_nbr]['video_id']}")
+                    continue
+                summary = self.video_summarizer.summarize(captions)
+                videos_dict[video_nbr]['summary'] = summary
+                logging.info("- Summary : %s", videos_dict[video_nbr]['summary'])
+
+            except ValueError as e:
+                logging.error(e)
+                videos_dict[video_nbr]['summary'] = None
+                continue
+
+        # delete captions_dict for memory efficiency
+        del captions_dict
+
         # 4. Return the summarized videos
-        return search_results
+        return videos_dict
