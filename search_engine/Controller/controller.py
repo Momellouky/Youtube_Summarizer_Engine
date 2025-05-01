@@ -55,39 +55,6 @@ class Controller(IController) :
 
         # 3. Summarize the captions
 
-        # from groq import Groq
-        #
-        # groq = Groq(
-        #     api_key=os.getenv("GROQ_API_KEY"),
-        #
-        # )
-        #
-        # for video in captions_dict :
-        #     logging.info("- Summarizing captions for video %s", videos_dict[video]['video_id'])
-        #
-        #     try :
-        #         captions = captions_dict[video]['captions']
-        #         if captions is None :
-        #             logging.error("No captions found for video %s", videos_dict[video]['video_id'])
-        #             logging.warnig(f"- Skipping video {videos_dict[video]['video_id']}")
-        #             continue
-        #         chat_completion = groq.chat.completions.create(
-        #             messages=[
-        #                 {
-        #                     "role": "user",
-        #                     "content": f"Summarize the following captions : {captions}"
-        #                 }
-        #             ],
-        #             model="gemma2-9b-it",
-        #             temperature=0.7,
-        #         )
-        #         captions_dict[video]['summary'] = chat_completion.choices[0].message.content
-        #         logging.info("- Summary : %s", captions_dict[video]['summary'])
-        #     except ValueError as e:
-        #         logging.error(e)
-        #         captions_dict[video]['summary'] = None
-        #         continue
-
         for video_nbr, captions in captions_dict.items() :
             logging.info("- Summarizing captions for video ", video_nbr)
 
