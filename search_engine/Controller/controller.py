@@ -46,7 +46,6 @@ class Controller(IController) :
         for video in videos_dict :
 
             captions_dict[video] = {}
-            logging.info("- Generating captions for video %s", videos_dict[video]['video_id'])
 
             try :
                 captions = self.caption_generator.generate_captions(videos_dict[video]['video_id'])
@@ -58,26 +57,26 @@ class Controller(IController) :
 
         # 3. Summarize the captions
 
-        for video_nbr, captions in captions_dict.items() :
-            logging.info("- Summarizing captions for video ", video_nbr)
-
-            try :
-                captions = captions_dict[video_nbr]['captions']
-                if captions is None :
-                    logging.error("No captions found for video %s", videos_dict[video_nbr]['video_id'])
-                    logging.warning(f"- Skipping video {videos_dict[video_nbr]['video_id']}")
-                    continue
-                summary = self.video_summarizer.summarize(captions)
-                videos_dict[video_nbr]['summary'] = summary
-                logging.info("- Summary : %s", videos_dict[video_nbr]['summary'])
-
-            except ValueError as e:
-                logging.error(e)
-                videos_dict[video_nbr]['summary'] = None
-                continue
-
-        # delete captions_dict for memory efficiency
-        del captions_dict
+        # for video_nbr, captions in captions_dict.items() :
+        #     logging.info("- Summarizing captions for video ", video_nbr)
+        #
+        #     try :
+        #         captions = captions_dict[video_nbr]['captions']
+        #         if captions is None :
+        #             logging.error("No captions found for video %s", videos_dict[video_nbr]['video_id'])
+        #             logging.warning(f"- Skipping video {videos_dict[video_nbr]['video_id']}")
+        #             continue
+        #         summary = self.video_summarizer.summarize(captions)
+        #         videos_dict[video_nbr]['summary'] = summary
+        #         logging.info("- Summary : %s", videos_dict[video_nbr]['summary'])
+        #
+        #     except ValueError as e:
+        #         logging.error(e)
+        #         videos_dict[video_nbr]['summary'] = None
+        #         continue
+        #
+        # # delete captions_dict for memory efficiency
+        # del captions_dict
 
         # 4. Return the summarized videos
         return videos_dict
