@@ -48,7 +48,7 @@ class Controller(IController) :
             try :
                 captions = self.caption_generator.generate_captions(videos_dict[video]['video_id'])
                 captions_dict[video]['captions'] = captions
-            except ValueError as e:
+            except Exception as e:
                 logging.error(e)
                 captions_dict[video]['captions'] = None
                 continue
