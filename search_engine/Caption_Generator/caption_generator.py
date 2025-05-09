@@ -1,7 +1,7 @@
 from Caption_Generator.i_caption_generator import ICaptionGenerator
 from youtube_transcript_api import YouTubeTranscriptApi
 from utils.caption_maker import caption_maker
-from utils.util import english
+from utils.util import ENGLISH
 import logging
 
 class CaptionGenerator(ICaptionGenerator):
@@ -33,7 +33,7 @@ class CaptionGenerator(ICaptionGenerator):
         try :
             fetched_transcript = self.ytb_transcript.fetch(
                 video_id,
-                languages=english
+                languages=ENGLISH
             )
             logging.info("- Captions downloaded successfully for video %s", video_id)
             logging.info("- Number of captions : %s", len(fetched_transcript))

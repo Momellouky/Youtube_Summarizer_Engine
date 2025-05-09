@@ -1,6 +1,7 @@
 
 
-english = ['en', 'en-US', 'en-GB', 'en-CA', 'en-AU', 'en-NZ', 'en-IE', 'en-ZA', 'en-PH', 'en-IN', 'en-SG']
+ENGLISH = ['en', 'en-US', 'en-GB', 'en-CA', 'en-AU', 'en-NZ', 'en-IE', 'en-ZA', 'en-PH', 'en-IN', 'en-SG']
+
 
 def augment_query(search_query: str) -> str:
     """Augment the search query with additional keyword
