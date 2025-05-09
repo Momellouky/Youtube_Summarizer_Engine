@@ -4,6 +4,7 @@ from Controller.i_controller import IController
 from Youtube_Search.youtube_search import YoutubeSearch
 from Caption_Generator.caption_generator import CaptionGenerator
 from Video_Summmarizer.VideoSummarizer import VideoSummarizer
+from utils.util import augment_query
 import os
 
 
@@ -34,6 +35,8 @@ class Controller(IController) :
 
         # 1. Search for videos using the search query
 
+        # Augment the search query with the word "Talk OR Conference"
+        search_query = augment_query(search_query)
         videos_dict = self.ytb_client.search(search_query, max_results)
 
         # 2. Download captions for the videos
