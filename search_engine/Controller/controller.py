@@ -4,7 +4,8 @@ from Controller.i_controller import IController
 from Youtube_Search.youtube_search import YoutubeSearch
 from Caption_Generator.caption_generator import CaptionGenerator
 from Video_Summmarizer.VideoSummarizer import VideoSummarizer
-from utils.util import augment_query
+from utils.util import augment_query, MAX_TOKENS
+from utils.util import fragment_captions
 import os
 
 
@@ -57,26 +58,35 @@ class Controller(IController) :
 
         # 3. Summarize the captions
 
-        # for video_nbr, captions in captions_dict.items() :
-        #     logging.info("- Summarizing captions for video ", video_nbr)
-        #
-        #     try :
-        #         captions = captions_dict[video_nbr]['captions']
-        #         if captions is None :
-        #             logging.error("No captions found for video %s", videos_dict[video_nbr]['video_id'])
-        #             logging.warning(f"- Skipping video {videos_dict[video_nbr]['video_id']}")
-        #             continue
-        #         summary = self.video_summarizer.summarize(captions)
-        #         videos_dict[video_nbr]['summary'] = summary
-        #         logging.info("- Summary : %s", videos_dict[video_nbr]['summary'])
-        #
-        #     except ValueError as e:
-        #         logging.error(e)
-        #         videos_dict[video_nbr]['summary'] = None
-        #         continue
-        #
-        # # delete captions_dict for memory efficiency
-        # del captions_dict
+        for video_nbr, captions in captions_dict.items() :
+            logging.info(f"- Summarizing captions for video {video_nbr}")
+
+            try :
+                captions = captions_dict[video_nbr]['captions']
+                if captions is None :
+                    logging.error("No captions found for video %s", videos_dict[video_nbr]['video_id'])
+                    logging.warning(f"- Skipping video {videos_dict[video_nbr]['video_id']}")
+                    continue
+                if len(captions) > MAX_TOKENS :
+                    logging.info("- The video is too long. We are unable to summarize it")
+                    continue
+                    # logging.info("- The video transcrips is too long (> MAX_TOKENS). Splitting it into smaller chunks.")
+                    # logging.info("- MAX_TOKENS : %s", MAX_TOKENS)
+                    # captions_array = fragment_captions(captions, MAX_TOKENS)
+                    # summary = self.video_summarizer.summarize(captions_array)
+                    # videos_dict[video_nbr]['summary'] = summary
+                else :
+                    logging.info("- Start summarizing the video...")
+                    summary = self.video_summarizer.summarize(captions)
+                    videos_dict[video_nbr]['summary'] = summary
+                    logging.info("- Summary : %s", videos_dict[video_nbr]['summary'])
+            except Exception as e:
+                logging.error(e)
+                videos_dict[video_nbr]['summary'] = None
+                continue
+
+        # delete captions_dict for memory efficiency
+        del captions_dict
 
         # 4. Return the summarized videos
         return videos_dict

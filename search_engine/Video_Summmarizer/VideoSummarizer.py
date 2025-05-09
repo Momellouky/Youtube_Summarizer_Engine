@@ -38,3 +38,25 @@ class VideoSummarizer(IVideoSummarizer):
         summary = chat_completion.choices[0].message.content
 
         return summary
+
+
+    def summarize(self, captions_array : list) -> str:
+        """Summarize the caption chunks
+        :param caption: The caption of the video to summarize.
+        :return: The summarized caption.
+        """
+
+        if len(captions_array) == 0 :
+            raise ValueError("Captions array cannot be empty.")
+        if not isinstance(captions_array, list) :
+            raise TypeError("Captions array should be a list.")
+        if len(captions_array) == 1 :
+            logging.info("- Only one chunk found. Summarizing it.")
+            return self.summarize(captions_array[0])
+        else :
+            logging.info("- More than one chunk found. Summarizing them.")
+            summary = ""
+            for caption in captions_array :
+                summary += self.summarize(caption)
+
+            return self.summarize(summary)
