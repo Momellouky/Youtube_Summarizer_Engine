@@ -11,7 +11,7 @@ def augment_query(search_query: str) -> str:
     :return: The augmented search query.
     """
     # Add keywords to the search query
-    augmented_query = search_query + " conference OR talk"
+    augmented_query = search_query + " conference OR talk OR presentation OR lecture OR seminar OR symposium OR workshop"
     return augmented_query
 
 
