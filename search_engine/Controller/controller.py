@@ -66,9 +66,11 @@ class Controller(IController) :
                 if captions is None :
                     logging.error("No captions found for video %s", videos_dict[video_nbr]['video_id'])
                     logging.warning(f"- Skipping video {videos_dict[video_nbr]['video_id']}")
+                    videos_dict[video_nbr]['summary'] = None
                     continue
                 if len(captions) > MAX_TOKENS :
                     logging.info("- The video is too long. We are unable to summarize it")
+                    videos_dict[video_nbr]['summary'] = None
                     continue
                     # logging.info("- The video transcrips is too long (> MAX_TOKENS). Splitting it into smaller chunks.")
                     # logging.info("- MAX_TOKENS : %s", MAX_TOKENS)
