@@ -27,7 +27,7 @@ class MRVideoSummarizer(IVideoSummarizer) :
         )
         self.text_splitter = RecursiveCharacterTextSplitter(
             separators=["\n", "\n\n", "\n\n\n"],
-            chunk_size=500,
+            chunk_size=5990,
             chunk_overlap=50,
             length_function=len
         )
