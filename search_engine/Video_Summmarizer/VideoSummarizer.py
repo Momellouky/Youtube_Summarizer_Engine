@@ -32,19 +32,15 @@ class VideoSummarizer(IVideoSummarizer):
             raise TypeError("Captions should be a string or a list. You have passed a %s", type(captions))
 
         # Summarize the captions when the data type is a string
-        if isinstance(captions, str):
-            chat_completion = self.groq.chat.completions.create(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"Summarize the following captions : {captions}"
-                    }
-                ],
-                model="gemma2-9b-it",
-                temperature=0.7,
-            )
-            summary = chat_completion.choices[0].message.content
-            return summary
-        # Summarize the captions when the data type is a list
-        elif isinstance(captions, list):
-            raise NotImplementedError("Summarizing captions in list format is not implemented yet.")
+        chat_completion = self.groq.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Summarize the following captions : {captions}"
+                }
+            ],
+            model="gemma2-9b-it",
+            temperature=0.7,
+        )
+        summary = chat_completion.choices[0].message.content
+        return summary
