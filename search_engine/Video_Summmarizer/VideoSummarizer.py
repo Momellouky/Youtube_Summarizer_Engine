@@ -25,6 +25,13 @@ class VideoSummarizer(IVideoSummarizer):
         :return: The summarized caption.
         """
 
+        # Check if the captions are empty
+        if not captions:
+            raise ValueError("Captions cannot be empty.")
+        if not isinstance(captions, str) and not isinstance(captions, list):
+            raise TypeError("Captions should be a string or a list. You have passed a %s", type(captions))
+
+        # Summarize the captions when the data type is a string
         chat_completion = self.groq.chat.completions.create(
             messages=[
                 {
@@ -36,5 +43,4 @@ class VideoSummarizer(IVideoSummarizer):
             temperature=0.7,
         )
         summary = chat_completion.choices[0].message.content
-
         return summary

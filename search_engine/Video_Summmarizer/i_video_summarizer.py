@@ -7,7 +7,7 @@ class IVideoSummarizer(ABC):
     """
 
     @abstractmethod
-    def summarize(self, video_path: str) -> str:
+    def summarize(self, captions: str) -> str:
         """
         Abstract method to be implemented by subclasses.
         """
