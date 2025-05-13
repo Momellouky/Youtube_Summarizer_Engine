@@ -1,6 +1,7 @@
 import logging
 
 from Controller.i_controller import IController
+from Video_Summmarizer.MRL_VideoSummarizer import MRLVideoSummarizer
 from Youtube_Search.youtube_search import YoutubeSearch
 from Caption_Generator.caption_generator import CaptionGenerator
 from Video_Summmarizer.VideoSummarizer import VideoSummarizer
@@ -18,8 +19,9 @@ class Controller(IController) :
         self.ytb_client = YoutubeSearch(self.API_KEY)
         self.caption_generator = CaptionGenerator()
         self.video_summarizer = VideoSummarizer()
+        self.mr_video_summarizer = MRLVideoSummarizer()
 
-    def work(self, search_query : str, max_results : int = 5) -> None:
+    def work(self, search_query : str, max_results : int = 5) -> dict:
         """The implementation of the work method.
         """
 
@@ -32,22 +34,18 @@ class Controller(IController) :
         if not isinstance(max_results, int) :
             raise TypeError("Max results should be an integer.")
 
-        # start working on the request
-
         # 1. Search for videos using the search query
 
-        # Augment the search query with the word "Talk OR Conference"
+        #### Augment the search query with the word "Talk OR Conference"
         search_query = augment_query(search_query)
+        ### Search for videos using the augmented search query
         videos_dict = self.ytb_client.search(search_query, max_results)
 
         # 2. Download captions for the videos
 
         captions_dict = {}
-
         for video in videos_dict :
-
             captions_dict[video] = {}
-
             try :
                 captions = self.caption_generator.generate_captions(videos_dict[video]['video_id'])
                 captions_dict[video]['captions'] = captions
@@ -55,6 +53,7 @@ class Controller(IController) :
                 logging.error(e)
                 captions_dict[video]['captions'] = None
                 continue
+
 
         # 3. Summarize the captions
 
@@ -69,14 +68,9 @@ class Controller(IController) :
                     videos_dict[video_nbr]['summary'] = None
                     continue
                 if len(captions) > MAX_TOKENS :
-                    logging.info("- The video is too long. We are unable to summarize it")
-                    videos_dict[video_nbr]['summary'] = None
-                    continue
-                    # logging.info("- The video transcrips is too long (> MAX_TOKENS). Splitting it into smaller chunks.")
-                    # logging.info("- MAX_TOKENS : %s", MAX_TOKENS)
-                    # captions_array = fragment_captions(captions, MAX_TOKENS)
-                    # summary = self.video_summarizer.summarize(captions_array)
-                    # videos_dict[video_nbr]['summary'] = summary
+                    logging.info("- The video transcript is too long. We are processing it using MRVideoSummarizer.")
+                    videos_dict[video_nbr]['summary'] = self.mr_video_summarizer.summarize(captions)
+                    logging.info("- Summary : %s", videos_dict[video_nbr]['summary'])
                 else :
                     logging.info("- Start summarizing the video...")
                     summary = self.video_summarizer.summarize(captions)
