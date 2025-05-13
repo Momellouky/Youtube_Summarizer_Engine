@@ -36,11 +36,11 @@ class CaptionGenerator(ICaptionGenerator):
                 languages=ENGLISH
             )
             logging.info("- Captions downloaded successfully for video %s", video_id)
-            logging.info("- Number of captions : %s", len(fetched_transcript))
+            logging.info("- Number of captions snippets: %s", len(fetched_transcript))
 
             captions = caption_maker(fetched_transcript)
-
-            print(f"captions : {captions}")
+            logging.info("- caption length: %s", len(captions))
+            # print(f"captions : {captions}")
 
             return captions
 
